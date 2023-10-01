@@ -15,12 +15,13 @@ const fs = require("fs");
 const dotenv = require('dotenv').config();
 
 
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: "https://blogpage-c97k.onrender.com/" }));
 
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static(__dirname + "/uploads"));
 
+mongoose.set("strictQuery", false);
 mongoose.connect(process.env.MONGODB_URI);
 
 app.post("/register", async (req, res) => {
