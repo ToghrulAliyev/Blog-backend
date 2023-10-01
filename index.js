@@ -12,6 +12,8 @@ const secret = "hereismysecretkey";
 const multer = require("multer");
 const uploadMiddleware = multer({ dest: "uploads/" });
 const fs = require("fs");
+const dotenv = require('dotenv').config();
+
 
 app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 
@@ -19,9 +21,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static(__dirname + "/uploads"));
 
-mongoose.connect(
-  "mongodb+srv://togrulali4:h94xhVfr3cuLzZPq@cluster0.afj4bnn.mongodb.net/?retryWrites=true&w=majority"
-);
+mongoose.connect(process.env.MONGODB_URI);
 
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
@@ -88,7 +88,7 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   });
 });
 
-app.put('/post',uploadMiddleware.single('file'), async (req,res) => {
+app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
   let newPath = null;
   if (req.file) {
     const { originalname, path } = req.file;
@@ -119,7 +119,6 @@ app.put('/post',uploadMiddleware.single('file'), async (req,res) => {
   });
 });
 
-
 app.delete("/post/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -128,7 +127,8 @@ app.delete("/post/:id", async (req, res) => {
     if (err) throw err;
 
     const postDocument = await Post.findById(id);
-    const isAuthor = JSON.stringify(postDocument?.author) === JSON.stringify(info?.id);
+    const isAuthor =
+      JSON.stringify(postDocument?.author) === JSON.stringify(info?.id);
 
     if (!isAuthor) {
       return res.status(400).json("you are not the author");
@@ -148,15 +148,14 @@ app.get("/post", async (req, res) => {
   );
 });
 
-app.get('/post/:id', async (req, res) => {
-  const {id} = req.params;
-  const postDoc = await Post.findById(id).populate('author', ['username']);
+app.get("/post/:id", async (req, res) => {
+  const { id } = req.params;
+  const postDoc = await Post.findById(id).populate("author", ["username"]);
   res.json(postDoc);
-})
+});
 
+const PORT = process.env.PORT || 3000
 
-app.listen(5000);
+app.listen(PORT);
 
-//togrulali4 h94xhVfr3cuLzZPq mongo user
-
-//
+ 
