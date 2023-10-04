@@ -15,7 +15,7 @@ const fs = require("fs");
 const dotenv = require('dotenv').config();
 
 
-app.use(cors({ credentials: true, origin: "https://blogpage-c97k.onrender.com/" }));
+app.use(cors({ credentials: true, origin: "https://localhost:5173"}));
 
 app.use(express.json());
 app.use(cookieParser());
