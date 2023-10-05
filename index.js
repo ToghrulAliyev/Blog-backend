@@ -14,7 +14,7 @@ const uploadMiddleware = multer({ dest: "uploads/" });
 const fs = require("fs");
 const dotenv = require("dotenv").config();
 
-app.use(cors({ credentials: true, origin: "https://blogpage-c97k.onrender.com" }));
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 
 app.use(express.json());
 app.use(cookieParser());
