@@ -12,10 +12,9 @@ const secret = "hereismysecretkey";
 const multer = require("multer");
 const uploadMiddleware = multer({ dest: "uploads/" });
 const fs = require("fs");
-const dotenv = require('dotenv').config();
+const dotenv = require("dotenv").config();
 
-
-app.use(cors({ credentials: true, origin: "https://localhost:5173"}));
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -29,45 +28,53 @@ app.post("/register", async (req, res) => {
   try {
     const userDocument = await User.create({
       username,
-      password: bcrypt.hashSync(password, salt),
+      password: await bcrypt.hashSync(password, salt),
     });
+    if (!userDocument) {
+      return res.status(404).json("User not found");
+    }
     res.json(userDocument);
   } catch (error) {
     res.status(400).json(error.message);
   }
 });
+ 
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  const userDoc = await User.findOne({ username });
+  if (!userDoc) {
+    res.status(400).json("wrong credentialss");
+    return;
+  }
 
-app.post('/login', async (req,res) => {
-  const {username,password} = req.body;
-  const userDoc = await User.findOne({username});
-  const passOk = bcrypt.compareSync(password, userDoc.password);
+  const passOk = await bcrypt.compareSync(password, userDoc?.password);
   if (passOk) {
     // logged in
-    jwt.sign({username,id:userDoc._id}, secret, {}, (err,token) => {
+    jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
       if (err) throw err;
-      res.cookie('token', token).json({
-        id:userDoc._id,
+      res.cookie("token", token).json({
+        id: userDoc._id,
         username,
       });
     });
   } else {
-    res.status(400).json('wrong credentials');
+    res.status(400).json("wrong credentials");
   }
 });
 
 app.get("/profile", (req, res) => {
   const { token } = req.cookies;
+  if (!token) {
+    return res.status(401).json("Unauthorized");
+  }
   jwt.verify(token, secret, {}, (err, info) => {
     if (err) throw err;
     res.json(info);
   });
 });
 
-app.post("/logout", (req, res) => {
-  res.cookie("token", "").json({
-    id: userDocument._id,
-    username,
-  });
+app.post('/logout', (req,res) => {
+  res.cookie('token', '').json('ok');
 });
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
@@ -78,6 +85,9 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   fs.renameSync(path, newPath);
 
   const { token } = req.cookies;
+  if (!token) {
+    return res.status(401).json("Unauthorized");
+  }
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
     const { title, summary, content } = req.body;
@@ -103,6 +113,9 @@ app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
   }
 
   const { token } = req.cookies;
+  if (!token) {
+    return res.status(401).json("Unauthorized");
+  }
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
     const { id, title, summary, content } = req.body;
@@ -127,6 +140,9 @@ app.delete("/post/:id", async (req, res) => {
   const { id } = req.params;
 
   const { token } = req.cookies;
+  if (!token) {
+    return res.status(401).json("Unauthorized");
+  }
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
 
@@ -158,8 +174,6 @@ app.get("/post/:id", async (req, res) => {
   res.json(postDoc);
 });
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT);
-
- 
