@@ -8,7 +8,7 @@ const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const salt = bcrypt.genSaltSync(10);
-const secret = "hereismysecretkey";
+const secret = "fsefsefsdfsfgsefsef";
 const multer = require("multer");
 const uploadMiddleware = multer({ dest: "uploads/" });
 const fs = require("fs");
@@ -38,7 +38,7 @@ app.post("/register", async (req, res) => {
     res.status(400).json(error.message);
   }
 });
- 
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const userDoc = await User.findOne({ username });
@@ -50,13 +50,28 @@ app.post("/login", async (req, res) => {
   const passOk = await bcrypt.compareSync(password, userDoc?.password);
   if (passOk) {
     // logged in
-    jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
-      if (err) throw err;
-      res.cookie("token", token).json({
+    const token = jwt.sign({ username, id: userDoc._id }, secret, {
+      expiresIn: "2h",
+    });
+
+    res
+      .cookie("token", token, {
+        maxAge: 24 * 60 * 60 * 1000, // Expires in 24hrs
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      })
+      .json({
         id: userDoc._id,
         username,
       });
-    });
+    // jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
+    //   if (err) throw err;
+    //   res.cookie("token", token).json({
+    //     id: userDoc._id,
+    //     username,
+    //   });
+    // });
   } else {
     res.status(400).json("wrong credentials");
   }
@@ -73,8 +88,8 @@ app.get("/profile", (req, res) => {
   });
 });
 
-app.post('/logout', (req,res) => {
-  res.cookie('token', '').json('ok');
+app.post("/logout", (req, res) => {
+  res.cookie("token", "").json("ok");
 });
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
@@ -114,7 +129,7 @@ app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
 
   const { token } = req.cookies;
   if (!token) {
-    return res.status(401).json("Unauthorized");
+    return res.status(401).json("Unauthorized user");
   }
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
