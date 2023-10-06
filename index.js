@@ -87,12 +87,18 @@ app.get("/profile", (req, res) => {
     res.json(info);
   });
 });
-
 const blacklist = [];
 
 app.post("/logout", (req, res) => {
   // Get the JWT token from the request.
   const token = req.headers['authorization'].split(' ')[1];
+
+  // Check if the JWT token is in the blacklist.
+  if (blacklist.contains(token)) {
+    // Return a 401 Unauthorized response.
+    res.sendStatus(401);
+    return;
+  }
 
   // Add the JWT token to the blacklist.
   blacklist.add(token);
