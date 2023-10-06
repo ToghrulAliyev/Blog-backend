@@ -92,13 +92,14 @@ app.post("/logout", (req, res) => {
   const cookieOptions = {
     expires: new Date(0), // Set the expiration date to a past date to delete the cookie
     maxAge: -1,
-    domain: "https://astounding-zuccutto-df395c.netlify.app",
+    domain: "astounding-zuccutto-df395c.netlify.app", // Corrected domain without "https://"
     path: "/", // Set the path to the root to ensure the cookie is deleted for the entire site
     secure: true, // Require a secure (HTTPS) connection for the cookie
-    sameSite: "none", // Enforce strict SameSite policy (adjust as needed)
+    sameSite: "none", // Adjust SameSite policy as needed for your use case
+    httpOnly: true // Enforce that the cookie is not accessible via JavaScript
   };
 
-  res.clearCookie("token", "", cookieOptions).json("ok");
+  res.clearCookie("token", cookieOptions).json("ok");
 });
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
