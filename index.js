@@ -87,26 +87,19 @@ app.get("/profile", (req, res) => {
     res.json(info);
   });
 });
-const blacklist = [];
 
 app.post("/logout", (req, res) => {
-  // Get the JWT token from the request.
-  const token = req.headers['authorization'].split(' ')[1];
+  const cookieOptions = {
+    expires: new Date(0), // Set the expiration date to a past date to delete the cookie
+    path: "/", // Set the path to the root to ensure the cookie is deleted for the entire site
+    domain: "http://localhost:5000", // Replace with your actual domain
+    httpOnly: true, // Make the cookie accessible only via HTTP (not JavaScript)
+    secure: true, // Require a secure (HTTPS) connection for the cookie
+    sameSite: "strict", // Enforce strict SameSite policy (adjust as needed)
+  };
 
-  // Check if the JWT token is in the blacklist.
-  if (blacklist.contains(token)) {
-    // Return a 401 Unauthorized response.
-    res.sendStatus(401);
-    return;
-  }
-
-  // Add the JWT token to the blacklist.
-  blacklist.add(token);
-
-  // Return a success response.
-  res.sendStatus(200);
+  res.clearCookie("token", "", cookieOptions).json("ok");
 });
-
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { originalname, path } = req.file;
