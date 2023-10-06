@@ -14,7 +14,7 @@ const uploadMiddleware = multer({ dest: "uploads/" });
 const fs = require("fs");
 const dotenv = require("dotenv").config();
 
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: "https://astounding-zuccutto-df395c.netlify.app" }));
 
 app.use(express.json());
 app.use(cookieParser());
