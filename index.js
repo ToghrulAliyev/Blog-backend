@@ -88,14 +88,19 @@ app.get("/profile", (req, res) => {
   });
 });
 
+const blacklist = [];
+
 app.post("/logout", (req, res) => {
-  // Clear the user's cookies.
-  res.clearCookie("token");
+  // Get the JWT token from the request.
+  const token = req.headers['authorization'].split(' ')[1];
+
+  // Add the JWT token to the blacklist.
+  blacklist.add(token);
 
   // Return a success response.
   res.sendStatus(200);
-  
 });
+
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { originalname, path } = req.file;
