@@ -89,7 +89,12 @@ app.get("/profile", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.cookie("token", "", { expires: new Date(0) }).json("ok");
+  // Clear the user's cookies.
+  res.clearCookie("token");
+
+  // Return a success response.
+  res.sendStatus(200);
+  
 });
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
