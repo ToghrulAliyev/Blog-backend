@@ -94,7 +94,7 @@ app.post("/logout", (req, res) => {
     maxAge: -1,
     path: "/", // Set the path to the root to ensure the cookie is deleted for the entire site
     secure: true, // Require a secure (HTTPS) connection for the cookie
-    sameSite: "strict", // Enforce strict SameSite policy (adjust as needed)
+    sameSite: "none", // Enforce strict SameSite policy (adjust as needed)
   };
 
   res.clearCookie("token", "", cookieOptions).json("ok");
