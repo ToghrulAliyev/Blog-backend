@@ -13,8 +13,6 @@ const multer = require("multer");
 const uploadMiddleware = multer({ dest: "uploads/" });
 const fs = require("fs");
 const dotenv = require("dotenv").config();
-const redis = require('redis');
-const client = redis.createClient();
 
 app.use(
   cors({
@@ -95,38 +93,9 @@ app.get("/profile", (req, res) => {
   });
 });
 
-// app.post("/logout", async (req, res) => {
-//   const { username } = req.body; // Declare 'username' here
-//   const userDoc = await User.findOne({ username }); // Use 'username' here
-
-//   // Rest of your code remains the same
-//   const token = jwt.sign({ username, id: userDoc._id }, secret, {
-//     expires: new Date(0), // Set the expiration date to a past date to delete the cookie
-//     maxAge: -1,
-//     domain: "astounding-zuccutto-df395c.netlify.app", // Corrected domain without "https://"
-//     path: "/", // Set the path to the root to ensure the cookie is deleted for the entire site
-//     secure: true, // Require a secure (HTTPS) connection for the cookie
-//     sameSite: "none", // Adjust SameSite policy as needed for your use case
-//     httpOnly: false, // Enforce that the cookie is not accessible via JavaScript
-//   });
-
-//   res.cookie("token", token).json("ok");
-// });
-
-
 app.post("/logout", async (req, res) => {
   const { username } = req.body; // Declare 'username' here
-
-  // Check if the user document is cached in Redis.
-  const userDoc = await client.get(username);
-
-  // If the user document is not cached in Redis, then query the database.
-  if (!userDoc) {
-    userDoc = await User.findOne({ username });
-
-    // Cache the user document in Redis.
-    client.set(username, userDoc);
-  }
+  const userDoc = await User.findOne({ username }); // Use 'username' here
 
   // Rest of your code remains the same
   const token = jwt.sign({ username, id: userDoc._id }, secret, {
@@ -141,8 +110,6 @@ app.post("/logout", async (req, res) => {
 
   res.cookie("token", token).json("ok");
 });
-
-
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { originalname, path } = req.file;
