@@ -48,21 +48,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// app.post("/logout", async (req, res) => {
-//   const { username } = req.body; // Declare 'username' here
-//   const userDoc = await User.findOne({ username }); // Use 'username' here
-
-//   // Rest of your code remains the same
-//   const token = jwt.sign({ username, id: userDoc._id }, secret, {
-//     httpOnly: false,
-//     maxAge: -1,
-//     sameSite: "none",
-//     secure: true,
-//   });
-
-//   res.cookie("token", token).json("ok");
-// });
-
 app.post("/logout", async (req, res) => {
   const { username, password } = req.body;
   const userDoc = await User.findOne({ username });
@@ -93,8 +78,6 @@ app.post("/logout", async (req, res) => {
 });
 
 
-
-
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const userDoc = await User.findOne({ username });
@@ -121,13 +104,6 @@ app.post("/login", async (req, res) => {
         id: userDoc._id,
         username,
       });
-    // jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
-    //   if (err) throw err;
-    //   res.cookie("token", token).json({
-    //     id: userDoc._id,
-    //     username,
-    //   });
-    // });
   } else {
     res.status(400).json("wrong credentials");
   }
@@ -143,7 +119,6 @@ app.get("/profile", (req, res) => {
     res.json(info);
   });
 });
-
 
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
@@ -170,6 +145,7 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
     res.json(postDocument);
   });
 });
+
 
 app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
   let newPath = null;
@@ -205,6 +181,7 @@ app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
   });
 });
 
+
 app.delete("/post/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -228,6 +205,7 @@ app.delete("/post/:id", async (req, res) => {
   });
 });
 
+
 app.get("/post", async (req, res) => {
   res.json(
     await Post.find()
@@ -236,6 +214,7 @@ app.get("/post", async (req, res) => {
       .limit(20)
   );
 });
+
 
 app.get("/post/:id", async (req, res) => {
   const { id } = req.params;
