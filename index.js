@@ -14,7 +14,12 @@ const uploadMiddleware = multer({ dest: "uploads/" });
 const fs = require("fs");
 const dotenv = require("dotenv").config();
 
-app.use(cors({ credentials: true, origin: "https://astounding-zuccutto-df395c.netlify.app" }));
+app.use(
+  cors({
+    credentials: true,
+    origin: "https://astounding-zuccutto-df395c.netlify.app",
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -89,17 +94,17 @@ app.get("/profile", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  const cookieOptions = {
+  const token = jwt.sign({ username, id: userDoc._id }, secret, {
     expires: new Date(0), // Set the expiration date to a past date to delete the cookie
     maxAge: -1,
     domain: "astounding-zuccutto-df395c.netlify.app", // Corrected domain without "https://"
     path: "/", // Set the path to the root to ensure the cookie is deleted for the entire site
     secure: true, // Require a secure (HTTPS) connection for the cookie
     sameSite: "none", // Adjust SameSite policy as needed for your use case
-    httpOnly: true // Enforce that the cookie is not accessible via JavaScript
-  };
+    httpOnly: false, // Enforce that the cookie is not accessible via JavaScript
+  });
 
-  res.cookie("token", cookieOptions).json("ok");
+  res.cookie("token", token).json("ok");
 });
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
