@@ -99,7 +99,7 @@ app.post("/logout", (req, res) => {
     httpOnly: true // Enforce that the cookie is not accessible via JavaScript
   };
 
-  res.clearCookie("token", cookieOptions).json("ok");
+  res.cookie("token", cookieOptions).json("ok");
 });
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
