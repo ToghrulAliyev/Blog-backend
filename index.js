@@ -94,8 +94,10 @@ app.get("/profile", (req, res) => {
 });
 
 app.post("/logout", async (req, res) => {
-  const userDoc = await User.findOne({ username });
-  const { username } = req.body;
+  const { username } = req.body; // Declare 'username' here
+  const userDoc = await User.findOne({ username }); // Use 'username' here
+
+  // Rest of your code remains the same
   const token = jwt.sign({ username, id: userDoc._id }, secret, {
     expires: new Date(0), // Set the expiration date to a past date to delete the cookie
     maxAge: -1,
