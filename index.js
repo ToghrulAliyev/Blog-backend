@@ -17,7 +17,11 @@ const dotenv = require("dotenv").config();
 app.use(
   cors({
     credentials: true,
-    origin: "https://astounding-zuccutto-df395c.netlify.app",
+    origin: [
+      "https://astounding-zuccutto-df395c.netlify.app",
+      "http://localhost:5173",
+    ],
+    
   })
 );
 
