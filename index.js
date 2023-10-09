@@ -9,10 +9,10 @@ const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const salt = bcrypt.genSaltSync(10);
 const secret = "fsefsefsdfsfgsefsef";
-const multer = require("multer");
-const uploadMiddleware = multer({ dest: "uploads/" });
 const fs = require("fs");
 const dotenv = require("dotenv").config();
+const multer = require("multer");
+const uploadMiddleware = multer({ dest: "uploads/" });
 
 app.use(
   cors({
@@ -119,7 +119,16 @@ app.get("/profile", (req, res) => {
     res.json(info);
   });
 });
-
+let upload = multer({
+  storage:multer.diskStorage({
+    destination:(req,file, cb)=>{
+      cb (null, './uploads')
+    },
+    filename: function(req,file, callback){
+      callback(null, file.originalname)
+    }
+  })
+})
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { originalname, path } = req.file;
@@ -214,7 +223,7 @@ app.get("/post", async (req, res) => {
       .limit(20)
   );
 });
-
+  
 
 app.get("/post/:id", async (req, res) => {
   const { id } = req.params;
