@@ -12,7 +12,6 @@ const secret = "fsefsefsdfsfgsefsef";
 const fs = require("fs");
 const dotenv = require("dotenv").config();
 const multer = require("multer");
-const uploadMiddleware = multer({ dest: "uploads/" });
 
 app.use(
   cors({
@@ -21,7 +20,6 @@ app.use(
       "https://astounding-zuccutto-df395c.netlify.app",
       "http://localhost:5173",
     ],
-    
   })
 );
 
@@ -57,7 +55,6 @@ app.post("/logout", async (req, res) => {
   }
   const passOk = await bcrypt.compareSync(password, userDoc?.password);
   if (passOk) {
-    // logged in
     const token = jwt.sign({ username, id: userDoc._id }, secret, {
       expiresIn: "2h",
     });
@@ -69,14 +66,11 @@ app.post("/logout", async (req, res) => {
         sameSite: "none",
         secure: true,
       })
-      .json(
-        "ok"
-      );
+      .json("ok");
   } else {
     res.status(400).json("wrong credentials");
   }
 });
-
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
@@ -114,21 +108,27 @@ app.get("/profile", (req, res) => {
   if (!token) {
     return res.status(401).json("Unauthorized");
   }
-  jwt.verify(token, secret, {}, (err, info) => {
-    if (err) throw err;
+
+  try {
+    const info = jwt.verify(token, secret, {});
     res.json(info);
-  });
+  } catch (err) {
+    // Handle the error gracefully
+    console.log(err);
+    res.status(403).json("Forbidden");
+  }
 });
-let upload = multer({
-  storage:multer.diskStorage({
-    destination:(req,file, cb)=>{
-      cb (null, './uploads')
+ 
+const uploadMiddleware = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "./uploads");
     },
-    filename: function(req,file, callback){
-      callback(null, file.originalname)
-    }
-  })
-})
+    filename: function (req, file, callback) {
+      callback(null, file.originalname);
+    },
+  }),
+});
 
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { originalname, path } = req.file;
@@ -154,7 +154,6 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
     res.json(postDocument);
   });
 });
-
 
 app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
   let newPath = null;
@@ -190,7 +189,6 @@ app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
   });
 });
 
-
 app.delete("/post/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -214,7 +212,6 @@ app.delete("/post/:id", async (req, res) => {
   });
 });
 
-
 app.get("/post", async (req, res) => {
   res.json(
     await Post.find()
@@ -223,7 +220,6 @@ app.get("/post", async (req, res) => {
       .limit(20)
   );
 });
-  
 
 app.get("/post/:id", async (req, res) => {
   const { id } = req.params;
